@@ -1,0 +1,9 @@
+.root{
+    z-index: 2;
+    position: absolute;
+}
+
+.player{
+  width: 100px;
+  height: 100px;
+}

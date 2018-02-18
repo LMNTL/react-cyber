@@ -1,0 +1,36 @@
+.root{
+    z-index: 1;
+    display: grid;
+    width: 100%;
+    height: 100vh;
+    grid-gap: 0px;
+    grid-template-columns: auto auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto;
+}
+
+.cell{
+}
+
+@keyframes shaking{
+        from { 
+            transform: rotate(-9deg); 
+        } to { 
+            transform: rotate(9deg); 
+        }
+}
+
+.red{
+    width: 100%;
+    height: 100%;
+    background-color: #782723;
+//    animation: shaking 0.1s linear infinite;
+//    animation-direction: alternate;
+}
+
+.empty{
+    width: 100%;
+    height: 100%;
+    background-color: #23278a;
+    transition: all ease-in-out .5s;
+}
+
