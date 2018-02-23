@@ -8,7 +8,6 @@ class App extends Component {
     return (
       <div>
         <Tiles></Tiles>
-        <Entities></Entities>
       </div>
     );
   }

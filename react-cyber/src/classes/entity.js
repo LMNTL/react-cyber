@@ -13,10 +13,8 @@ class Entity{
     this.speed = 10;
     this.pressure = 5;
     this.xp = 0;
-    this.orientation = 'L';
+    this.direction = 'right';
   }
-  move = () => {
-  };
 }
 
 module.exports = Entity;

@@ -4,11 +4,48 @@
     width: 100%;
     height: 100vh;
     grid-gap: 0px;
-    grid-template-columns: auto auto auto auto auto;
+    grid-template-columns: repeat(5, 1fr);
     grid-template-rows: auto auto auto auto auto;
 }
 
-.cell{
+.entities{
+    z-index: 2;
+    position: absolute;
+    display: grid;
+    width: 100%;
+    height: 100vh;
+    grid-gap: 0px;
+    grid-border: 10px solid black;
+    grid-template-columns: 20% 20% 20% 20% 20%;
+    grid-template-rows: 20% 20% 20% 20% 20%;
+    align-items: center;
+    justify-items: center;
+}
+
+.right{
+  transition: transform 0.2s;
+  transform: rotate(0deg);
+}
+
+.left{
+  transition: transform 0.2s;
+  transform: rotate(180deg);
+}
+
+.up{
+  transition: transform 0.2s;
+  transform: rotate(270deg);
+}
+
+.down{
+  transition: transform 0.2s;
+  transform: rotate(90deg);
+}
+
+.player{
+  width: 100px;
+  height: 100px;
+  transition-timing-function: ease;
 }
 
 @keyframes shaking{

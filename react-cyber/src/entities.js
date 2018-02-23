@@ -14,19 +14,33 @@ class Entities extends Component{
   
   componentDidMount(){
     const newPlayer = new player.Player();
+    newPlayer.x = 2;
+    newPlayer.y = 2;
     this.setState({
       player: newPlayer
     });
+    window.addEventListener("onkeyup", this.move);
   }
-
+  
+  move = (event) => {
+    console.log('moving!');
+    let nextPlayer = this.player;
+    switch(event.key){
+      case "ArrowLeft": //left
+        nextPlayer.moveLeft();
+        break;
+      default:
+        break;
+    }
+    this.setState({ player: nextPlayer });
+  }
+  
   render(){
-    var layout = [
-      {i: 'a', x: 2, y: 2, w: 1, h: 1, static: true}
-    ];
-    return this.state ? ( 
-      <ReactGridLayout className="root" layout={layout} cols={5} rows={5} width={100} rowHeight={100}>
-        <div key='a'><img className='player' src={this.state.player ? this.state.player.sprite : null }></img></div>
-      </ReactGridLayout>
+    var layout = this.state.player ? [
+      {i: 'player', x: this.state.player.x , y: this.state.player.y, w: 1, h: 1, static: true}
+    ] : [];
+    return this.state ? (
+        <div key='player'><img className='player' src={this.state.player ? this.state.player.sprite : null }></img></div>
     ) : null;
   }
 }
