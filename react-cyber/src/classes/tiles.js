@@ -38,7 +38,11 @@ class Tiles extends Component{
   }
   
   isEmpty = (x, y) => {
-    return !this.state.entities.some(entity => (entity.x === x && entity.y === y));
+    return !this.state.entities.some(entity => (entity.x === x && entity.y === y)) && this.state.tiles[x][y] === 'empty';
+  }
+  
+  isInBounds = (x, y) => {
+    return (x >= 0 && y >= 0 && x < this.state.xBound && y < this.state.yBound);
   }
   
   setDirection = (direction) => {
@@ -53,30 +57,39 @@ class Tiles extends Component{
     this.setState({entities: updatedEntities});
   }
   
+  randomEmptyAdj = (x, y) => {
+    let emptyAdj = []
+    if(this.isInBounds(x-1,y) && this.isEmpty(x-1,y)) emptyAdj.push([x-1,y]);
+    if(this.isInBounds(x+1,y) && this.isEmpty(x+1,y)) emptyAdj.push([x+1,y]);
+    if(this.isInBounds(x,y-1) && this.isEmpty(x,y-1)) emptyAdj.push([x,y-1]);
+    if(this.isInBounds(x,y+1) && this.isEmpty(x,y+1)) emptyAdj.push([x,y+1]);
+    return emptyAdj[Math.floor(Math.random() * emptyAdj.length)];
+  }
+  
   handleKeyDown = (event) => {
     const x = this.state.player.x;
     const y = this.state.player.y;
     switch(event.keyCode){
       case 100: //left
-        if(x > 0 && this.state.tiles[x-1][y] == 'empty' && this.isEmpty(x-1,y)){
+        if(this.isInBounds(x-1,y) && this.isEmpty(x-1,y)){
           this.setDirection('left');
           this.movePlayer([-1, 0]);
         }
         break;
       case 98: //down
-        if(y >= 0 && this.state.tiles[x][y+1] == 'empty' && this.isEmpty(x,y+1)){
+        if(this.isInBounds(x,y+1) && this.isEmpty(x,y+1)){
           this.setDirection('down');
           this.movePlayer([0, +1]);
         }
         break;
       case 102: //right
-        if(x < this.state.xBound && this.state.tiles[x+1][y] == 'empty' && this.isEmpty(x+1,y)){
+        if(this.isInBounds(x+1,y) && this.isEmpty(x+1,y)){
           this.setDirection('right');
           this.movePlayer([+1, 0]);
         }
         break;
       case 104: //up
-        if(y < this.state.yBound && this.state.tiles[x][y-1] == 'empty' && this.isEmpty(x,y-1)){
+        if(this.isInBounds(x,y-1) && this.isEmpty(x,y-1)){
           this.setDirection('up');
           this.movePlayer([0, -1]);
         }
@@ -84,7 +97,11 @@ class Tiles extends Component{
        default:
         break;
     }
-    console.log(`${this.state.player.x}, ${this.state.player.y}`);
+    let entities = this.state.entities;
+    const newCatPos = this.randomEmptyAdj(entities[1].x, entities[1].y);
+    entities[1].x = newCatPos[0];
+    entities[1].y = newCatPos[1];
+    this.setState({entities: entities});
   }
 
   componentDidMount(){
