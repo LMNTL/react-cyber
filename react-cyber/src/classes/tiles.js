@@ -67,6 +67,7 @@ class Tiles extends Component{
   }
   
   handleKeyDown = (event) => {
+    let moved = true;
     const x = this.state.player.x;
     const y = this.state.player.y;
     switch(event.keyCode){
@@ -95,13 +96,16 @@ class Tiles extends Component{
         }
         break;
        default:
+        moved = false;
         break;
     }
-    let entities = this.state.entities;
-    const newCatPos = this.randomEmptyAdj(entities[1].x, entities[1].y);
-    entities[1].x = newCatPos[0];
-    entities[1].y = newCatPos[1];
-    this.setState({entities: entities});
+    if(moved){
+      let entities = this.state.entities;
+      const newCatPos = this.randomEmptyAdj(entities[1].x, entities[1].y);
+      entities[1].x = newCatPos[0];
+      entities[1].y = newCatPos[1];
+      this.setState({entities: entities});
+    }
   }
 
   componentDidMount(){
@@ -130,7 +134,10 @@ class Tiles extends Component{
         <div className="root">
           {this.state.tiles.map((row, xIndex) => (
             row.map((cell, yIndex) => {
-              return (<div className={cell} gridColumn={(xIndex+1)+'/1'} gridRow={(yIndex+1)+'/1'} key={[xIndex, yIndex]}></div>);
+              return (
+                <div className={cell} gridColumn={(xIndex+1)+'/1'} gridRow={(yIndex+1)+'/1'} key={[xIndex, yIndex]}>
+                </div>
+              );
             })
           ))}
         </div>
