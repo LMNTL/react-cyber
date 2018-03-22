@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import './tiles.css';
-var player = require("./player.js");
-var npc = require("./npc.js");
+import PropTypes from 'prop-types';
+import Player from './player.js';
+let npc = require("./npc.js");
+
 
 class Tiles extends Component{
   constructor(props) {
@@ -13,6 +15,18 @@ class Tiles extends Component{
       yBound: 5,
       player: null
     };
+  }
+
+  setStateCache = () => {
+    let cachedState = new Object();
+    const addToCache = (cacheKey, cacheValue) => {
+      if(cacheKey !== "none" && cacheValue !== "none") {
+        cachedState[cacheKey.toString()] = cacheValue;
+      } else {
+        this.setState(cachedState);
+      }
+    }
+    return addToCache;
   }
 
   addRect(x, y, xLength, yLength, value){
@@ -32,9 +46,13 @@ class Tiles extends Component{
   
   movePlayer = (distance) => {
     let changedPlayer = this.state.player;
+    const addToState = this.setStateCache();
     changedPlayer.x += distance[0];
     changedPlayer.y += distance[1];
-    this.setState({player: changedPlayer});
+    addToState("player", changedPlayer);
+    addToState("none", "none");
+    //this.setState({player: changedPlayer});
+
   }
   
   isEmpty = (x, y) => {
@@ -67,32 +85,41 @@ class Tiles extends Component{
   }
   
   handleKeyDown = (event) => {
+    const addToState = this.setStateCache();
     let moved = true;
     const x = this.state.player.x;
     const y = this.state.player.y;
     switch(event.keyCode){
       case 100: //left
-        if(this.isInBounds(x-1,y) && this.isEmpty(x-1,y)){
-          this.setDirection('left');
-          this.movePlayer([-1, 0]);
+        if(this.isInBounds(x-1,y)) {
+          if(this.isEmpty(x-1,y)) {
+            this.setDirection('left');
+            this.movePlayer([-1, 0]);
+          }
         }
         break;
       case 98: //down
-        if(this.isInBounds(x,y+1) && this.isEmpty(x,y+1)){
-          this.setDirection('down');
-          this.movePlayer([0, +1]);
+        if(this.isInBounds(x,y+1)) {
+          if(this.isEmpty(x,y+1)) {
+            this.setDirection('down');
+            this.movePlayer([0, +1]);
+          }
         }
         break;
       case 102: //right
-        if(this.isInBounds(x+1,y) && this.isEmpty(x+1,y)){
-          this.setDirection('right');
-          this.movePlayer([+1, 0]);
+        if(this.isInBounds(x+1,y)) {
+          if(this.isEmpty(x+1,y)) {
+            this.setDirection('right');
+            this.movePlayer([+1, 0]);
+          }
         }
         break;
       case 104: //up
-        if(this.isInBounds(x,y-1) && this.isEmpty(x,y-1)){
-          this.setDirection('up');
-          this.movePlayer([0, -1]);
+        if(this.isInBounds(x,y-1)) {
+          if(this.isEmpty(x,y-1)) {
+            this.setDirection('up');
+            this.movePlayer([0, -1]);
+          }
         }
         break;
        default:
@@ -106,10 +133,11 @@ class Tiles extends Component{
       entities[1].y = newCatPos[1];
       this.setState({entities: entities});
     }
+    addToState('none', 'none');
   }
 
   componentDidMount(){
-    const newPlayer = new player.Player();
+    const newPlayer = new Player();
     newPlayer.x = 2;
     newPlayer.y = 2;
     this.state.entities.push(newPlayer);
