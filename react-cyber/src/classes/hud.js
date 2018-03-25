@@ -9,8 +9,8 @@ class HUD extends React.Component {
 
     render() {
         return this.props ? (
-            <div>
-                <p className='hp'>HP: {this.props.player.hp}</p>
+            <div className='hud'>
+                <p className='hp'>HP: {this.props.player.hp}/{this.props.player.maxHp}</p>
             </div>
         ) : null;
     }
@@ -18,7 +18,7 @@ class HUD extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        player: state.player
+        player: state.player.player
     };
 }
 

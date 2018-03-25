@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './tiles.css';
 import PropTypes from 'prop-types';
 import Player from './player.js';
+import { connect } from 'react-redux';
+import { movePlayer } from '../redux/actions';
 let npc = require("./npc.js");
 
 
@@ -39,7 +41,7 @@ class Tiles extends Component{
       newTile.push([]);
       for(let k = y; k < y + yLength; k++) {
         newTile[i][k] = value;
-      }
+      } 
     }
     this.setState({tiles: newTile});
   }
@@ -62,13 +64,7 @@ class Tiles extends Component{
   isInBounds = (x, y) => {
     return (x >= 0 && y >= 0 && x < this.state.xBound && y < this.state.yBound);
   }
-  
-  setDirection = (direction) => {
-    let rotatedPlayer = this.state.player;
-    rotatedPlayer.direction = direction;
-    this.setState({player: rotatedPlayer});
-  }
-  
+
   addEntity = (entity) => {
     const updatedEntities = this.state.entities;
     updatedEntities.push(entity);
@@ -93,32 +89,28 @@ class Tiles extends Component{
       case 100: //left
         if(this.isInBounds(x-1,y)) {
           if(this.isEmpty(x-1,y)) {
-            this.setDirection('left');
-            this.movePlayer([-1, 0]);
+            this.props.movePlayer(-1, 0, 'left');
           }
         }
         break;
       case 98: //down
         if(this.isInBounds(x,y+1)) {
           if(this.isEmpty(x,y+1)) {
-            this.setDirection('down');
-            this.movePlayer([0, +1]);
+            this.props.movePlayer(0, 1, 'down');
           }
         }
         break;
       case 102: //right
         if(this.isInBounds(x+1,y)) {
           if(this.isEmpty(x+1,y)) {
-            this.setDirection('right');
-            this.movePlayer([+1, 0]);
+            this.props.movePlayer(1, 0, 'right');
           }
         }
         break;
       case 104: //up
         if(this.isInBounds(x,y-1)) {
           if(this.isEmpty(x,y-1)) {
-            this.setDirection('up');
-            this.movePlayer([0, -1]);
+            this.props.movePlayer(0, -1, 'up');
           }
         }
         break;
@@ -157,7 +149,7 @@ class Tiles extends Component{
   }
 
   render(){
-    return this.state.tiles && this.state.player ? (
+    return this.state.tiles && this.props ? (
       <div>
         <div className="root">
           {this.state.tiles.map((row, xIndex) => (
@@ -170,7 +162,11 @@ class Tiles extends Component{
           ))}
         </div>
         <div className='entities'>
-          <img className={this.state.player.direction + ' player'} style={{gridColumn: this.state.player.x+1 / 1, gridRow: this.state.player.y+1 / 1}} src={this.state.player ? this.state.player.sprite : null }></img>
+          <img
+              className={this.props.player.direction + ' player'}
+              style={{gridColumn: this.props.player.x+1 / 1, gridRow: this.props.player.y+1 / 1}}
+              src={this.props.player.sprite}>
+          </img>
           {this.state.entities.map((entity, index) => {
             return (<div key={index} style={{gridColumn: entity.x+1 / 1, gridRow: entity.y+1 / 1}}>cat</div>)
           })}
@@ -180,4 +176,14 @@ class Tiles extends Component{
   }
 }
 
-export default Tiles;
+const mapStateToProps = (state) => {
+  return {
+    player: state.player.player
+  };
+}
+
+const mapDispatchToProps = {
+  movePlayer 
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Tiles);

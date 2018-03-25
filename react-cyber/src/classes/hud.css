@@ -1,4 +1,12 @@
+.hud {
+    position: absolute;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+}
+
 .hp {
-    font-size: 10em;
-    z-index: 20;
+    font-size: 2em;
+    background-color: white;
+    align-self: flex-end;
 }

@@ -12,11 +12,12 @@ export const die = npcID => {
   }
 }
 
-export const movePlayer = (x, y) => {
+export const movePlayer = (x, y, direction) => {
   return {
     type: MOVE_PLAYER,
     x,
-    y
+    y,
+    direction
   }
 }
 
