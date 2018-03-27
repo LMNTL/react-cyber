@@ -1,12 +1,30 @@
 .hud {
     position: absolute;
     z-index: 4;
-    display: flex;
-    flex-direction: column;
+}
+
+.bottomHud {
+    display: grid;
+    width: 100%;
+    height: 100vh;
+    grid-gap: 0px;
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-rows: repeat(20, 1fr);
 }
 
 .hp {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    font-size: 1.5em;
+}
+
+.name {
+    grid-row: 18 / 19;
+    grid-column: 1 / 2;
     font-size: 2em;
-    background-color: white;
-    align-self: flex-end;
+}
+
+.hpBar {
+    grid-row: 19 / 20;
+    grid-column-start: 1;
 }

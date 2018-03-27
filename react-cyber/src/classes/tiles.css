@@ -6,7 +6,7 @@
     height: 100vh;
     grid-gap: 0px;
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: auto auto auto auto auto;
+    grid-template-rows: repeat(5, 1fr);
 }
 
 .entities{

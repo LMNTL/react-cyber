@@ -9,7 +9,7 @@ class Entity{
     this.hp = 0;
     this.armor = 0;
     this.inventory = [];
-    this.attacks = {};
+    this.attacks = [];
     this.speed = 10;
     this.pressure = 5;
     this.xp = 0;

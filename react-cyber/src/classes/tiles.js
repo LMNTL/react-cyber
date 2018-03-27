@@ -13,8 +13,8 @@ class Tiles extends Component{
     this.state = {
       entities: [],
       tiles: [],
-      xBound: 5,
-      yBound: 5,
+      xBound: 100,
+      yBound: 100,
       player: null
     };
   }
@@ -119,13 +119,14 @@ class Tiles extends Component{
         break;
     }
     if(moved){
-      let entities = this.state.entities;
-      const newCatPos = this.randomEmptyAdj(entities[1].x, entities[1].y);
-      entities[1].x = newCatPos[0];
-      entities[1].y = newCatPos[1];
-      this.setState({entities: entities});
+
     }
     addToState('none', 'none');
+  }
+
+  isVisible = (x, y) => {
+    const [playerX, playerY] = [this.props.player.x, this.props.player.y];
+    return Math.abs(x-playerX) <= 2 && Math.abs(y-playerY) <= 2;
   }
 
   componentDidMount(){
@@ -135,13 +136,9 @@ class Tiles extends Component{
     this.state.entities.push(newPlayer);
     const emptyWorld = [...Array(this.state.xBound).keys()].map(i => Array(this.state.yBound));
     this.setState({tiles: emptyWorld, player: newPlayer});
-    this.addRect(0, 0, 5, 5, "empty");
+    this.addRect(0, 0, 40, 40, "empty");
     this.addRect(2, 2, 1, 1, "red");
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
-    let cat = new npc.NPC();
-    cat.x = 4;
-    cat.y = 4;
-    this.addEntity(cat);
   }
   
   componentWillUnmount(){
@@ -154,17 +151,20 @@ class Tiles extends Component{
         <div className="root">
           {this.state.tiles.map((row, xIndex) => (
             row.map((cell, yIndex) => {
-              return (
-                <div className={cell} gridColumn={(xIndex+1)+'/1'} gridRow={(yIndex+1)+'/1'} key={[xIndex, yIndex]}>
+              return this.isVisible (xIndex, yIndex) ? (
+                <div
+                  className={cell}                  
+                  style={{gridColumn: (xIndex+3-this.props.player.x) / 1, gridRow: (yIndex+3-this.props.player.y) / 1}}
+                  key={[xIndex, yIndex]}>
                 </div>
-              );
+              ) : null;
             })
           ))}
         </div>
         <div className='entities'>
           <img
               className={this.props.player.direction + ' player'}
-              style={{gridColumn: this.props.player.x+1 / 1, gridRow: this.props.player.y+1 / 1}}
+              style={{gridColumn: 3 / 1, gridRow: 3 / 1}}
               src={this.props.player.sprite}>
           </img>
           {this.state.entities.map((entity, index) => {
