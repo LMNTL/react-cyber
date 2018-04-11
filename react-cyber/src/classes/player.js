@@ -7,8 +7,9 @@ export default class Player extends Entity{
     this.xpToNextLevel = 0;
     this.x = 2;
     this.y = 2;
-    this.hp = 1;
+    this.hp = 10;
     this.maxHp = 10;
+    this.attack = 5;
     this.name = 'Celica';
     this.sprite = 'playersprite.png';
   }

@@ -1,12 +1,9 @@
 import Entity from './entity.js';
 import Player from './player.js';
 
-export class NPC extends Entity{
+export default class NPC extends Entity{
   constructor(){
     super();
-    this.nerve;
+    this.id = -1;
   }
-  die = () => {
-    this.active = false;    
-  };
 }

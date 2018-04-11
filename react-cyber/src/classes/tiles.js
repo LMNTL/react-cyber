@@ -3,8 +3,8 @@ import './tiles.css';
 import PropTypes from 'prop-types';
 import Player from './player.js';
 import { connect } from 'react-redux';
-import { movePlayer } from '../redux/actions';
-let npc = require("./npc.js");
+import { movePlayer, damageNPC } from '../redux/actions';
+import NPC from "./npc.js";
 
 
 class Tiles extends Component{
@@ -19,22 +19,10 @@ class Tiles extends Component{
     };
   }
 
-  setStateCache = () => {
-    let cachedState = new Object();
-    const addToCache = (cacheKey, cacheValue) => {
-      if(cacheKey !== "none" && cacheValue !== "none") {
-        cachedState[cacheKey.toString()] = cacheValue;
-      } else {
-        this.setState(cachedState);
-      }
-    }
-    return addToCache;
-  }
-
   addRect(x, y, xLength, yLength, value){
     if(x + xLength > this.state.yBound || y + yLength > this.state.yBound){
       console.log("created rectangle out of world bounds")
-      return null;
+      return false;
     }
     let newTile = this.state.tiles;
     for(let i = x; i < x + xLength; i++) {
@@ -43,34 +31,24 @@ class Tiles extends Component{
         newTile[i][k] = value;
       } 
     }
-    this.setState({tiles: newTile});
-  }
-  
-  movePlayer = (distance) => {
-    let changedPlayer = this.state.player;
-    const addToState = this.setStateCache();
-    changedPlayer.x += distance[0];
-    changedPlayer.y += distance[1];
-    addToState("player", changedPlayer);
-    addToState("none", "none");
-    //this.setState({player: changedPlayer});
-
+    this.setState( { tiles: newTile } );
+    return true;
   }
   
   isEmpty = (x, y) => {
-    return !this.state.entities.some(entity => (entity.x === x && entity.y === y)) && this.state.tiles[x][y] === 'empty';
+    return !this.props.npcs.some(entity => (entity.x === x && entity.y === y && entity.active)) && this.state.tiles[x][y] === 'empty' && [this.props.player.x, this.props.player.y] !== [x,y];
   }
   
   isInBounds = (x, y) => {
     return (x >= 0 && y >= 0 && x < this.state.xBound && y < this.state.yBound);
   }
 
-  addEntity = (entity) => {
-    const updatedEntities = this.state.entities;
-    updatedEntities.push(entity);
-    this.setState({entities: updatedEntities});
+  getNpc = (x, y) => {
+    if(this.props.npcs.some(entity => (entity.x === x && entity.y === y)) )
+      return this.props.npcs.findIndex(entity => (entity.x === x && entity.y === y));
+    return false;
   }
-  
+
   randomEmptyAdj = (x, y) => {
     let emptyAdj = []
     if(this.isInBounds(x-1,y) && this.isEmpty(x-1,y)) emptyAdj.push([x-1,y]);
@@ -79,17 +57,34 @@ class Tiles extends Component{
     if(this.isInBounds(x,y+1) && this.isEmpty(x,y+1)) emptyAdj.push([x,y+1]);
     return emptyAdj[Math.floor(Math.random() * emptyAdj.length)];
   }
+
+  attack = (attacker, defender) => {
+    let damage;
+    damage = attacker.attack - defender.defense;
+    return damage;
+  }
+
+  randomEmpty = () => {
+    let [x, y] = [null,null];
+    do{
+      x = Math.floor(Math.random() * this.state.xBound);
+      y = Math.floor(Math.random() * this.state.yBound);
+    } while (this.isEmpty(x,y));
+    return [x, y];
+  }
   
   handleKeyDown = (event) => {
-    const addToState = this.setStateCache();
     let moved = true;
-    const x = this.state.player.x;
-    const y = this.state.player.y;
+    const x = this.props.player.x;
+    const y = this.props.player.y;
     switch(event.keyCode){
       case 100: //left
         if(this.isInBounds(x-1,y)) {
           if(this.isEmpty(x-1,y)) {
             this.props.movePlayer(-1, 0, 'left');
+          } else {
+            let enemy = this.getNpc(x-1,y);
+            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
           }
         }
         break;
@@ -97,6 +92,9 @@ class Tiles extends Component{
         if(this.isInBounds(x,y+1)) {
           if(this.isEmpty(x,y+1)) {
             this.props.movePlayer(0, 1, 'down');
+          } else {
+            let enemy = this.getNpc(x,y+1);
+            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
           }
         }
         break;
@@ -104,6 +102,9 @@ class Tiles extends Component{
         if(this.isInBounds(x+1,y)) {
           if(this.isEmpty(x+1,y)) {
             this.props.movePlayer(1, 0, 'right');
+          } else {
+            let enemy = this.getNpc(x+1,y);
+            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
           }
         }
         break;
@@ -111,6 +112,9 @@ class Tiles extends Component{
         if(this.isInBounds(x,y-1)) {
           if(this.isEmpty(x,y-1)) {
             this.props.movePlayer(0, -1, 'up');
+          } else {
+            let enemy = this.getNpc(x,y-1);
+            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
           }
         }
         break;
@@ -119,9 +123,7 @@ class Tiles extends Component{
         break;
     }
     if(moved){
-
     }
-    addToState('none', 'none');
   }
 
   isVisible = (x, y) => {
@@ -130,14 +132,10 @@ class Tiles extends Component{
   }
 
   componentDidMount(){
-    const newPlayer = new Player();
-    newPlayer.x = 2;
-    newPlayer.y = 2;
-    this.state.entities.push(newPlayer);
     const emptyWorld = [...Array(this.state.xBound).keys()].map(i => Array(this.state.yBound));
-    this.setState({tiles: emptyWorld, player: newPlayer});
+    this.setState({tiles: emptyWorld});
     this.addRect(0, 0, 40, 40, "empty");
-    this.addRect(2, 2, 1, 1, "red");
+    this.addRect(3, 3, 20, 20, "red");
     document.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
   
@@ -153,8 +151,10 @@ class Tiles extends Component{
             row.map((cell, yIndex) => {
               return this.isVisible (xIndex, yIndex) ? (
                 <div
-                  className={cell}                  
-                  style={{gridColumn: (xIndex+3-this.props.player.x) / 1, gridRow: (yIndex+3-this.props.player.y) / 1}}
+                  className={cell}               
+                  style={{
+                    gridColumn: (xIndex+3-this.props.player.x) / 1,
+                    gridRow: (yIndex+3-this.props.player.y) / 1 }}
                   key={[xIndex, yIndex]}>
                 </div>
               ) : null;
@@ -163,13 +163,12 @@ class Tiles extends Component{
         </div>
         <div className='entities'>
           <img
-              className={this.props.player.direction + ' player'}
-              style={{gridColumn: 3 / 1, gridRow: 3 / 1}}
+              className={`${this.props.player.direction} player ${this.props.player.animation}`}
+              style={{
+                gridColumn: 3 / 1,
+                gridRow: 3 / 1 }}
               src={this.props.player.sprite}>
           </img>
-          {this.state.entities.map((entity, index) => {
-            return (<div key={index} style={{gridColumn: entity.x+1 / 1, gridRow: entity.y+1 / 1}}>cat</div>)
-          })}
         </div>
       </div>
     ) : null;
@@ -178,12 +177,13 @@ class Tiles extends Component{
 
 const mapStateToProps = (state) => {
   return {
-    player: state.player.player
+    player: state.player.player,
+    npcs: state.npcs.npcs
   };
-}
+} 
 
 const mapDispatchToProps = {
-  movePlayer 
+  movePlayer, damageNPC  
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Tiles);

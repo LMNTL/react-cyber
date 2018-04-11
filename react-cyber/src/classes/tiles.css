@@ -42,15 +42,6 @@
 .player{
   width: 100px;
   height: 100px;
-  transition-timing-function: ease;
-}
-
-@keyframes shaking{
-        from { 
-            transform: rotate(-9deg); 
-        } to { 
-            transform: rotate(9deg); 
-        }
 }
 
 .red{

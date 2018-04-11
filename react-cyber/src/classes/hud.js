@@ -21,8 +21,7 @@ class HUD extends React.Component {
         return this.props ? (
             <div className='hud'>
                 <div className='bottomHud'>
-                    <p className='name'>{this.props.player.name}</p>
-                    <p className='level'>Level {this.props.player.level}</p>                    
+                    <p className='name'>{this.props.player.name} - Level {this.props.player.level}</p>   
                     <div
                         className='hpBar'
                         style={{
