@@ -1,0 +1,48 @@
+.log {
+    position: absolute;
+    left: 20vw;
+    right: 20vw;
+    z-index: 100;
+    background-image: linear-gradient(to bottom, rgba(100, 100, 100, 1), rgba(100, 100, 100, 0.4));
+    font-family: 'roboto';
+    color: white;
+}
+
+.message {
+    position: relative;
+    margin: 0.1em 0.1em 0.1em 0.1em;
+    height: 1em;
+    transition: opacity 100ms, height 200ms;
+}
+
+.message:last-child {
+    animation: fadeIn 200ms;
+}
+
+.message:first-child {
+    height: 0;
+    opacity: 0
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(10em);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        bottom: 0;
+
+    }
+    to {
+        opacity: 0;
+        bottom: -1em;
+    }
+}

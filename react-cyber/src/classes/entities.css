@@ -12,13 +12,20 @@
 }
 
 .npc{
-    position: absolute;
-    z-index: 3;
+    margin: 0 0 0 0;
 }
 
-.npcSprite{
-    width: 100px;
-    height: 100px;
-    position: absolute;
-    z-index: 2;
+.npcHp{
+    position: relative;
+    z-index: 4;
+    top: -5px;
+    color: white;
+    -webkit-margin-after: 0;
+    -webkit-margin-before: 0;
+}
+
+.npcsprite{
+    bottom: 0;
+    width: 100%;
+    height: 100%;
 }

@@ -5,5 +5,6 @@ export default class NPC extends Entity{
   constructor(){
     super();
     this.id = -1;
+    this.hostile = true;
   }
 }

@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { addNPC } from '../redux/actions';
 import NPC from "./npc.js";
 import './entities.js';
+import './entities.css';
+import NPCList from './npclist.json';
 
 class Entities extends Component{
     constructor(props) {
@@ -14,7 +16,8 @@ class Entities extends Component{
     }
 
     componentDidMount(){
-        let newNPC = new NPC();
+        let newNPC = Object.assign( new NPC, ...NPCList.npcList.security );
+        console.log(newNPC);
         newNPC.name = "Security";
         newNPC.sprite = "security.png";
         newNPC.x = 1;
@@ -29,19 +32,21 @@ class Entities extends Component{
             <div className="entities">
                 {this.props.npcs.map((npc, index) => {
                     return this.isVisible(npc.x, npc.y) && npc.active ? (
-                        <h1                         
+                        <h1
+                            className="npc"                         
                             key={index}
                             style={{
                                 gridColumn: (npc.x+3-this.props.playerX) / 1,
                                 gridRow: (npc.y+3-this.props.playerY) / 1
                             }}
-                            className="npc"
                         >
-                            HP: {npc.hp}/{npc.maxHp}
                             <img
                                 src={npc.sprite}
                                 className='npcsprite'
                             />
+                            <p className="npcHp">
+                                HP: {npc.hp}/{npc.maxHp}
+                            </p>
                         </h1>
                     ) : null;
                 })}

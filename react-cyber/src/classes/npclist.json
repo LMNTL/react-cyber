@@ -2,7 +2,7 @@
     "npcList": {
         "security":{
             "hp": 20,
-            "armor": 15,
+            "armor": 5,
             "sprite": "security.png",
             "xp": 115,
             "speed": 8,

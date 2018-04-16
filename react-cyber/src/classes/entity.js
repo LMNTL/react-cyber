@@ -10,6 +10,7 @@ class Entity{
     this.maxHp = 0;
     this.armor = 0;
     this.inventory = [];
+    this.cyberware = [];
     this.attack = 1;
     this.defense = 1;
     this.speed = 10;

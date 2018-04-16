@@ -3,7 +3,7 @@ import './tiles.css';
 import PropTypes from 'prop-types';
 import Player from './player.js';
 import { connect } from 'react-redux';
-import { movePlayer, damageNPC } from '../redux/actions';
+import { movePlayer, damageNPC, getXP, levelUp, moveNpc, takeDamage, addMessage } from '../redux/actions';
 import NPC from "./npc.js";
 
 
@@ -77,53 +77,101 @@ class Tiles extends Component{
     let moved = true;
     const x = this.props.player.x;
     const y = this.props.player.y;
+    let direction;
+    let movementVector;
     switch(event.keyCode){
-      case 100: //left
-        if(this.isInBounds(x-1,y)) {
-          if(this.isEmpty(x-1,y)) {
-            this.props.movePlayer(-1, 0, 'left');
-          } else {
-            let enemy = this.getNpc(x-1,y);
-            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
-          }
-        }
+      case 100:
+        movementVector = [-1, 0];
+        direction = 'left';
         break;
-      case 98: //down
-        if(this.isInBounds(x,y+1)) {
-          if(this.isEmpty(x,y+1)) {
-            this.props.movePlayer(0, 1, 'down');
-          } else {
-            let enemy = this.getNpc(x,y+1);
-            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
-          }
-        }
+      case 98:
+        movementVector = [0, 1];
+        direction = 'down';
         break;
-      case 102: //right
-        if(this.isInBounds(x+1,y)) {
-          if(this.isEmpty(x+1,y)) {
-            this.props.movePlayer(1, 0, 'right');
-          } else {
-            let enemy = this.getNpc(x+1,y);
-            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
-          }
-        }
+      case 102:
+        movementVector = [1, 0];
+        direction = 'right';
         break;
-      case 104: //up
-        if(this.isInBounds(x,y-1)) {
-          if(this.isEmpty(x,y-1)) {
-            this.props.movePlayer(0, -1, 'up');
-          } else {
-            let enemy = this.getNpc(x,y-1);
-            if(enemy !== false) this.props.damageNPC(enemy, this.attack(this.props.player, this.props.npcs[enemy]));
-          }
-        }
+      case 104:
+        movementVector = [0, -1];
+        direction = 'up';
         break;
-       default:
-        moved = false;
+      default:
         break;
     }
-    if(moved){
+    if( movementVector && this.isInBounds( x + movementVector[0], y + movementVector[1] ) ) {
+      if( this.isEmpty( x + movementVector[0], y + movementVector[1] ) ) {
+        this.props.movePlayer( movementVector[0], movementVector[1], direction );
+      } else {
+        let npc = this.getNpc( x + movementVector[0], y + movementVector[1] );
+        if(npc !== false) this.attackNPC(npc);
+        else moved = false;
+      }
+    } else moved = false;
+    if( moved ) this.moveNpcs();
+  }
+
+  attackNPC = (enemy) => {
+    let damage = this.attack(this.props.player, this.props.npcs[enemy]);
+    if( this.props.npcs[ enemy ].hp <= damage ){
+      this.props.getXP( this.props.npcs[enemy].xp );
+      if( this.props.player.xpToNextLevel <= 0 )
+        this.levelUp();
     }
+    this.props.damageNPC(enemy, damage);
+    this.props.addMessage(`You attacked the ${this.props.npcs[ enemy ].name} for ${damage} damage!`);
+  }
+
+  levelUp = () => {
+    console.log( ( this.props.player.maxHp * 1.2 ).toFixed(0) );
+    let remainingXp = this.props.player.xpToNextLevel;
+    let levelsGained = 0;
+    do{
+      remainingXp += ( this.props.player.level + 1 ) * 100;
+      levelsGained++;
+    } while (remainingXp <= 0);
+    for( let i = 0; i < levelsGained; i++ ){
+      this.props.levelUp(remainingXp);
+    }
+  }
+
+  moveNpcs = () => {
+    this.props.npcs.forEach( npc => {
+      if ( npc.active ){
+        if ( npc.hostile ) this.moveTowardsPlayer( npc );
+        else this.wander( npc );
+      }
+    } );
+  }
+
+  wander = ( npc ) => {
+    return null;
+  }
+
+  moveTowardsPlayer = ( npc ) => {
+    let xVector = npc.x - this.props.player.x;
+    if( xVector != 0 ) xVector = xVector / Math.abs( xVector );
+    const newX = this.props.player.x + xVector;
+    let yVector = npc.y - this.props.player.y;
+    if( yVector != 0 ) yVector = yVector / Math.abs( yVector );
+    const newY = this.props.player.y + yVector;
+    if ( this.isInBounds( newX, newY ) && this.isEmpty( newX, newY ) )
+      this.props.moveNpc( -xVector, -yVector, npc.id );
+    else if ( this.isPlayerAdjacent( npc.x, npc.y ) ) {
+      this.attackPlayer( npc );
+    }
+  }
+
+  attackPlayer = ( npc ) => {
+    const damage = this.props.player.defense - npc.attack;
+    this.props.takeDamage( damage );
+    this.props.addMessage( `${npc.name} attacked you for ${damage} damage!` )
+  }
+
+  isPlayerAdjacent = ( x, y ) => {
+    if ( Math.abs( this.props.player.x - x ) <= 1 && Math.abs( this.props.player.y - y ) <= 1 )
+      return true;
+    return false;
   }
 
   isVisible = (x, y) => {
@@ -183,7 +231,7 @@ const mapStateToProps = (state) => {
 } 
 
 const mapDispatchToProps = {
-  movePlayer, damageNPC  
+  movePlayer, damageNPC, getXP, levelUp, moveNpc, takeDamage, addMessage
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Tiles);

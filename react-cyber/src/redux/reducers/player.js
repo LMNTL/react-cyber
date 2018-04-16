@@ -23,22 +23,32 @@ const player = (state = initialState, action) => {
                     hp: state.player.hp-action.damage
                 }
             }
-        case 'LEVEL_UP':
-            return {
-                ...state,
-                player: {
-                    ...state.player,
-                    level: state.player.level+1,
-                    xpToNextLevel: state.player.level*100,
-                    maxHp: state.player.maxHp*1.15
-                }
-            }
         case 'ADD_STATUS':
             return {
                 ...state,
                 player: {
                     ...state.player,
                     status: [action.status, ...state.status]
+                }
+            }
+        case 'GET_XP':
+            return {
+                ...state,
+                player: {
+                    ...state.player,
+                    xp: state.player.xp + action.payload.xp,
+                    xpToNextLevel: state.player.xpToNextLevel - action.payload.xp
+                }
+            }
+        case 'LEVEL_UP':
+            return {
+                ...state,
+                player: {
+                    ...state.player,
+                    level: state.player.level + 1,
+                    xpToNextLevel: action.payload.remainingXp,
+                    attack: state.player.attack + 1,
+                    maxHp: Math.floor( state.player.maxHp * 1.2 )
                 }
             }
         default:

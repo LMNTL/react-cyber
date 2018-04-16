@@ -8,7 +8,7 @@ class HUD extends React.Component {
     }
 
     generateHpColor = (curVal, maxVal) => {
-        const ratio = curVal/maxVal;
+        const ratio = curVal / maxVal;
         const colors = [    Math.floor(0x0a*ratio).toString(16).padStart(2, '0'),
                             Math.floor(0xff*ratio).toString(16).padStart(2, '0'),
                             Math.floor(0x15*ratio).toString(16).padStart(2, '0')
@@ -17,18 +17,27 @@ class HUD extends React.Component {
     }
 
     render() {
-        console.log(this.generateHpColor(10,15));
         return this.props ? (
             <div className='hud'>
                 <div className='bottomHud'>
-                    <p className='name'>{this.props.player.name} - Level {this.props.player.level}</p>   
+                    <p className={'name stats'}>
+                        {this.props.player.name} - Level {this.props.player.level}
+                    </p>
+                    <p className='xp stats'>XP to next level: {this.props.player.xpToNextLevel}</p>
                     <div
                         className='hpBar'
                         style={{
-                            gridColumnEnd: (this.props.player.hp/this.props.player.maxHp)*20,
-                            backgroundColor: this.generateHpColor(this.props.player.hp, this.props.player.maxHp)
+                            gridColumnEnd: 20                         
                         }}>
-                        <p className='hp'>HP: {this.props.player.hp}/{this.props.player.maxHp}</p>
+                        <div
+                            className='hpBar--fill'
+                            style={{
+                                backgroundColor: this.generateHpColor ( this.props.player.hp, this.props.player.maxHp ),
+                                width: ( this.props.player.hp / this.props.player.maxHp * 100 ) + '%'
+                            }}
+                            
+                        >                            
+                        </div>
                     </div>
                 </div>
             </div>
